@@ -36,6 +36,7 @@ logic                    ARREADY;   //Read Address ready (slave)
 //Read Data Channel
 //---------------------------------------------------------
 logic [DATA_WIDTH-1 : 0] RDATA;     //Read Data
+logic [1:0]              RRESP;     //Read Response
 logic                    RVALID;    //Read Data Valid
 logic                    RREADY;    //Read Data Ready(master)
 
