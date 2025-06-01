@@ -32,3 +32,10 @@ class axi_write_driver extends axi_driver;
         end
     endtask
 endclass
+
+/* ✅ Summary
+       Feature	                                       Purpose
+Inherits drive_write()	                    Uses shared write-driving logic
+Enforces AXI_WRITE	                        Fails fast if misuse happens
+Overrides run_phase()	                    Tailors to write-only behavior */
+
