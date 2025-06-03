@@ -20,7 +20,7 @@ class axi_base_test extends uvm_test;
 
         //Optionally set agent active/passive here
         uvm_config_db#(uvm_active_passive_enum)::set(this, "env.write_agent", "is_active", UVM_ACTIVE);
-        uvm_config_db#(uvm_active_passive_enum)::set(this, "env.read_agent", "is_active", UVM_ACTIVE);
+        uvm_config_db#(uvm_active_passive_enum)::set(this, "env.read_agent", "is_active", UVM_PASSIVE);
     endfunction
 
     //Run the sequence
