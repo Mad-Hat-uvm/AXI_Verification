@@ -1,3 +1,4 @@
+// Update: Addition of functional coverage
 //----------------------------------------------------------------
 // AXI Monitor
 // - Passively samples DUT signals via virtual interface
@@ -13,6 +14,32 @@ class axi_monitor extends uvm_monitor;
     //Analysis port to broadcast observed transactions
     uvm_analysis_port #(axi_transaction) mon_ap;
 
+    //Latest sampled transaction(used by covergroup)
+    axi_transaction tr_cov;
+
+    //Covergroup declaration
+    covergroup cg_axi_transaction @(posedge vif.ACLK);
+        coverpoint tr_cov.txn_type {
+            bins write = {AXI_WRITE};
+            bins read  = {AXI_READ};
+        }
+
+        coverpoint tr_cov.addr {
+            bins low_range = {[32'h0000_0000 : 32'h0000_001F]}; //[0 : 31]
+            bins mid_range = {[32'h0000_0020 : 32'h0000_00BF]}; //[32 : 191]
+            bins mid_range = {[32'h0000_00C0 : 32'h0000_00FF]}; //[192 : 255]
+        }
+
+        coverpoint tr_cov.rep{
+            bins okay    = {2'b00};
+            bins slverr  = {2'b10};
+            bins decerr  = {2'b11};
+        }
+
+        cross txn_type, addr;
+        cross txn_type, resp;
+    endgroup
+
     //Constructor
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -25,6 +52,8 @@ class axi_monitor extends uvm_monitor;
 
         if(!uvm_config_db#(virtual axi_if)::get(this, "", "vif", vif))
         `uvm_fatal("AXI_MONITOR", "Virtual interface not found")
+
+        cg_axi_transaction = new();
         
     endfunction
 
@@ -62,6 +91,8 @@ task monitor_write_channel();
         //Send transaction to scoreboard
         mon_ap.write(tr);
         
+        tr_cov = tr;         //assign to covergroup-sampled variable
+        cg_axi_transaction.sample();
     end
 endtask
 
@@ -88,6 +119,9 @@ task monitor_read_channel();
 
         //Send transaction to scoreboard
         mon_ap.write(tr);
+
+        tr_cov = tr;         //assign to covergroup-sampled variable
+        cg_axi_transaction.sample();
         
     end
 endtask
