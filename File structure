@@ -1,0 +1,37 @@
+axi_tb/
+├── rtl/
+├── tb/
+│   ├── top_tb.sv
+│   ├── axi_if.sv
+│   ├── axi_env.sv
+│   ├── axi_scoreboard.sv
+│   ├── axi_virtual_sequencer.sv
+│   ├── base_components/
+│   │   ├── axi_driver.sv
+│   │   ├── axi_monitor.sv
+│   │   ├── axi_sequencer.sv
+│   │   └── axi_transaction.sv
+│   ├── axi_write_agent/
+│   │   ├── axi_write_agent.sv
+│   │   ├── axi_write_driver.sv
+│   │   ├── axi_write_monitor.sv
+│   │   └── axi_write_sequencer.sv
+│   ├── axi_read_agent/
+│   │   ├── axi_read_agent.sv
+│   │   ├── axi_read_driver.sv
+│   │   ├── axi_read_monitor.sv
+│   │   └── axi_read_sequencer.sv
+│   └── sequences/
+│       ├── axi_write_seq.sv
+│       ├── axi_read_seq.sv
+│       └── axi_virt_rw_seq.sv
+├── tests/
+│   ├── axi_base_test.sv
+│   ├── axi_write_only_test.sv
+│   ├── axi_read_only_test.sv
+│   ├── axi_read_write_test.sv
+│   └── axi_virtual_test.sv
+├── regression.py         ← Python regression script (placeholder)
+├── smoke.list            ← List of test names
+├── Makefile              ← Build + run + cov control
+└── logs/                 ← Output/log directory
