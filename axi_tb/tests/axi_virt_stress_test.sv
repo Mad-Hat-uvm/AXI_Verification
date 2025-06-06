@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 // AXI Virtual Interleave Test
 // - Exercise DUT and testbench under high-load conditions
-// - Multiple randomized writes and reads issued in rapid succession
+// - Launches a stress sequence with randomized, interleaved accesses
 // - Helps uncover timing bugs, scoreboard latency issues, or protocol gaps
 // = Acts like a mini random regression
 //---------------------------------------------------------------------------
