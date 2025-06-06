@@ -32,21 +32,38 @@ Test Cases:
    Description: Virtual sequence combining write and read sequences
    Objective: Confirm coordination between write and read agents through virtual sequencer
 
-5. Test: axi_stall_ready_test
+5. Test: axi_virt_interleave_test
+   Description: Interleave write and read sequences (ping-pong)
+   Objective: Validate simultaneous sequencer usage and scoreboarding
+
+6. Test: axi_virt_stress_test
+   Description: Random large data transactions using virtual sequence
+   Objective: Stress-test driver, monitor, scoreboard, and DUT
+
+7. Test: axi_virt_reset_test
+   Description: Run virtual sequence and assert reset mid-way
+   Objective: Ensure recovery across both agents and valid reset behavior
+
+8. Test: axi_virt_rw_latency_test
+   Description: Add delay between write and read via virtual sequence
+   Objective: Check if scoreboard holds expected data with delayed reads
+
+9. Test: axi_stall_ready_test
    Description: Delay AWREADY, WREADY, ARREADY signals by few cycles
    Objective: Test monitor/driver robustness to handshake delay
 
-6. Test: axi_reset_during_txn
-   Description: Trigger reset in the middle of a transaction
-   Objective: Ensure DUT recovers properly and UVM testbench resets cleanly
+10. Test: axi_reset_during_txn
+    Description: Trigger reset in the middle of a transaction
+    Objective: Ensure DUT recovers properly and UVM testbench resets cleanly
 
-7. Test: axi_invalid_address_test
-   Description: Write and read to 0xFFFF_FFFF (invalid region)
-   Objective: Check SLVERR response and scoreboard skip
+11. Test: axi_invalid_address_test
+    Description: Write and read to 0xFFFF_FFFF (invalid region)
+    Objective: Check SLVERR response and scoreboard skip
 
-8. Test: axi_coverage_test
-   Description: Generate randomized accesses to hit all coverage bins
-   Objective: Close bins for txn_type × addr, txn_type × resp
+12. Test: axi_coverage_test
+    Description: Generate randomized accesses to hit all coverage bins
+    Objective: Close bins for txn_type × addr, txn_type × resp
+
 
 Coverage Goals:
 ---------------
