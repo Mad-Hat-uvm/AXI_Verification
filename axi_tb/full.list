@@ -1,0 +1,14 @@
+# All functional + corner cases
+
+axi_write_only_test
+axi_read_only_test
+axi_read_write_test
+axi_virtual_test
+axi_virtual_interleave_test
+axi_virtual_stress_test
+axi_virtual_reset_test
+axi_virtual_rw_latency_test
+axi_stall_ready_test
+axi_reset_during_txn
+axi_invalid_address_test
+axi_coverage_test
