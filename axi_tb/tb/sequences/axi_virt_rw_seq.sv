@@ -4,13 +4,13 @@
 //--------------------------------------------------------------------
 
 class axi_virt_rw_seq extends uvm_sequence;
-    `uvm_object_utils(axi_write_seq)
+    `uvm_object_utils(axi_virt_rw_seq)
 
     //Virtual Sequencer type
     `uvm_declare_p_sequencer(axi_virtual_sequencer);
 
     //Constructor
-    function new(string name = "axi_write_seq");
+    function new(string name = "axi_virt_rw_seq");
         super.new(name);
     endfunction
 
