@@ -1,9 +1,12 @@
 //----------------------------------------------------------------
 // AXI Virtual Test
+// - Uses a single virtual sequence to trigger both actions
+// - Tests virtual sequencer connectivity in environment
+// - Scoreboard validates end-to-end data correctness
 // - Runs a co-ordinated read-write using virtual sequencer
 //----------------------------------------------------------------
 
-class axi_virtual_test extends uvm_test;
+class axi_virtual_test extends axi_base_test;
     `uvm_component_utils (axi_virtual_test)
 
     //Constructor
