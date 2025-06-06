@@ -1,0 +1,7 @@
+# Medium-depth tests
+
+axi_write_only_test
+axi_read_only_test
+axi_read_write_test
+axi_virtuak_test
+axi_virtual_interleave_test
