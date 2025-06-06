@@ -1,14 +1,16 @@
-//----------------------------------------------------------------
+//---------------------------------------------------------------------------
 // AXI Virtual Interleave Test
-// - Runs interleaved write/read transactions using a virtual sequence
-// - Validates sequencer co-ordination and scoreboard behavior
-//----------------------------------------------------------------
+// - Exercise DUT and testbench under high-load conditions
+// - Multiple randomized writes and reads issued in rapid succession
+// - Helps uncover timing bugs, scoreboard latency issues, or protocol gaps
+// = Acts like a mini random regression
+//---------------------------------------------------------------------------
 
-class axi_virtual_interleave_test extends axi_base_test;
-    `uvm_component_utils (axi_virtual_interleave_test)
+class axi_virtual_stress_test extends axi_base_test;
+    `uvm_component_utils (axi_virtual_stress_test)
 
     //Constructor
-    function new(string name =  "axi_virtual_interleave_test", uvm_component parent = null);
+    function new(string name =  "axi_virtual_stress_test", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
@@ -24,12 +26,12 @@ class axi_virtual_interleave_test extends axi_base_test;
 
     //Run the sequence
     task run_phase(uvm_phase phase);
-        axi_virt_interleave_seq vseq;
+        axi_virt_stress_seq vseq;
 
         phase.raise_objection(this);
 
          //Create and start virtual sequence
-         vseq = axi_virt_interleave_seq::type_id::create("vseq");
+         vseq = axi_virt_stress_seq::type_id::create("vseq");
          vseq.start(env.virt_sequencer);
          
         phase.drop_objection(this);
