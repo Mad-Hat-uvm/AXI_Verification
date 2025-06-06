@@ -26,11 +26,13 @@ class axi_virt_interleave_seq extends uvm_sequence;
             //WRITE
             `uvm_info("VSEQ", $sformatf("Starting WRITE[%0d]", i), UVM_MEDIUM)
               write_seq = axi_write_seq::type_id::create("write_seq");
+              write_seq.addr_override = addr; // assumes addr_override field in write_seq
               write_seq.start(p_sequencer.write_sequencer);
 
-            //READ
-             `uvm_info("VSEQ", $sformatf("Starting READ[%0d]", i), UVM_MEDIUM)  
-               read_seq  = axi_read_seq::type_id::create("read_seq");
+            //READ 
+               read_seq  = axi_read_seq::type_id::create($sformatf("read_seq_%0d", i));
+               read_seq.addr_override = addr; // assumes addr_override field in read_seq
+               `uvm_info("VSEQ", $sformatf("Starting READ[%0d] from addr: 0x%0h", i, addr), UVM_MEDIUM) 
                read_seq.start(p_sequencer.read_sequencer);
         end
     endtask
