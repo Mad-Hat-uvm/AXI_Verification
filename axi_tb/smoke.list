@@ -1,0 +1,4 @@
+# Fast sanity checks
+axi_write_only_test
+axi_read_only_test
+axi_read_write_test
