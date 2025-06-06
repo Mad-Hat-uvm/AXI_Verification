@@ -7,7 +7,7 @@
 class axi_read_seq extends uvm_sequence #(axi_transaction);
     `uvm_object_utils(axi_read_seq)
 
-    rand int unsigned num_txns = 4;
+    rand bit [31:0] addr_override;
 
     //Constructor
     function new(string name = "axi_read_seq");
@@ -23,7 +23,7 @@ class axi_read_seq extends uvm_sequence #(axi_transaction);
             tr.txn_type == AXI_READ;
             assert(tr.randomize() with {
                 tr.txn_type = AXI_READ;
-                addr inside {[32'h0000_0000 : 32'h0000_00FF]}; //restrict to write address range
+                addr == addr_override;
             });
 
             `uvm_info("AXI_READ_SEQ", $sformatf("Sending READ[%0d]: %s", tr.convert2string()), UVM_MEDIUM)

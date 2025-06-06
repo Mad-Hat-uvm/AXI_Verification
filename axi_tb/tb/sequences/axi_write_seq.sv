@@ -7,7 +7,7 @@
 class axi_write_seq extends uvm_sequence #(axi_transaction);
     `uvm_object_utils(axi_write_seq)
 
-    rand int unsigned num_txns = 4;
+    rand bit [31:0] addr_override;
 
     //Constructor
     function new(string name = "axi_write_seq");
@@ -23,7 +23,7 @@ class axi_write_seq extends uvm_sequence #(axi_transaction);
             tr.txn_type == AXI_WRITE;
             assert(tr.randomize() with {
                 tr.txn_type = AXI_WRITE;
-                addr inside {[32'h0000_0000 : 32'h0000_00FF]}; //restrict to small memory range
+                addr == addr_override;
             });
 
             `uvm_info("AXI_WRITE_SEQ", $sformatf("Sending WRITE[%0d]: %s", tr.convert2string()), UVM_MEDIUM)
