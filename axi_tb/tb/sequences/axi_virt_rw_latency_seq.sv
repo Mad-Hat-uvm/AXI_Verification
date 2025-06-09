@@ -64,3 +64,14 @@ class axi_virt_rw_latency_seq extends uvm_sequence;
         end
     endtask
 endclass
+
+/* ✅ Do You Need to Change the Scoreboard for axi_virt_rw_latency_seq?
+No changes are required if your scoreboard already:
+
+Tracks all write transactions in a reference model (e.g., associative array)
+
+On read, looks up the address and compares read.data == ref_mem[addr]
+
+That is enough — regardless of how many cycles separate the write and read.
+
+✅ UVM scoreboards are transaction-level, not cycle-accurate by default — so a delay between write and read is perfectly valid. */
