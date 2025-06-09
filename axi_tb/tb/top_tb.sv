@@ -1,7 +1,8 @@
 //-----------------------------------------------------------------
-// Top-Level Testbench wrapper
+// Top-Level Testbench : Supports full AXI UVM test suite
 // - Instantiates DUT and AXI Interface
 // - Generates Clock and Reset
+// - UVM config_db setup
 //----------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -13,30 +14,22 @@ module tb_top;
     parameter MEM_DEPTH  = 256;
 
 //-----------------------------------------------------------------
-//Clock and Reset Signals
-//-----------------------------------------------------------------
-logic clk;
-logic rst_n;
-
-//-----------------------------------------------------------------
 //Clock Generation: 10ns period
 //-----------------------------------------------------------------
-initial clk = 0;
-always #5 clk = ~clk;
+logic ACLK;
+initial ACLK = 0;
+always #5 ACLK = ~ACLK;   //100Mhz clock
 
 //-----------------------------------------------------------------
-//Reset Generation
+//Reset Interface
 //-----------------------------------------------------------------
-initial begin
-    rst_n = 0;
-    #50;
-    rst_n = 1;
-end
+reset_if rst_if(ACLK);       //Reset interface with assertions and coverage
+logic ARESETn = rst_if.rst_n; //Alias from reset interface
 
 //-----------------------------------------------------------------
 //AXI Interface Instance
 //-----------------------------------------------------------------
-axi_if #(ADDR_WIDTH, DATA_WIDTH) axi_if_inst (.ACLK(clk), .ARESETn(rst_n));
+axi_if #(ADDR_WIDTH, DATA_WIDTH) axi_vif (ACLK, ARESETn);
 
 //-----------------------------------------------------------------
 //DUT Instance (AXI-Lite Slave)
@@ -46,36 +39,44 @@ axi_lite_slave #(
     .DATA_WIDTH(DATA_WIDTH),
     .MEM_DEPTH(MEM_DEPTH)
 ) dut (
-    .ACLK    (clk),
-    .ARESETn (rst_n),
+    .AACLK    (ACLK),
+    .ARESETn (ARESETn),
 
     //Write Address Channel
-    .AWADDR(axi_if_inst.AWADDR),
-    .AWVALID(axi_if_inst.AWVALID),
-    .AWREADY(axi_if_inst.AWREADY),
+    .AWADDR(axi_vif.AWADDR),
+    .AWVALID(axi_vif.AWVALID),
+    .AWREADY(axi_vif.AWREADY),
 
     //Write Data Channel
-    .WDATA(axi_if_inst.WDATA),
-    .WVALID(axi_if_inst.WVALID),
-    .WREADY(axi_if_inst.WREADY),
+    .WDATA(axi_vif.WDATA),
+    .WVALID(axi_vif.WVALID),
+    .WREADY(axi_vif.WREADY),
 
     //Write Response Channel
-    .BRESP(axi_if_inst.BRESP),
-    .BVALID(axi_if_inst.BVALID),
-    .BREADY(axi_if_inst.BREADY),
+    .BRESP(axi_vif.BRESP),
+    .BVALID(axi_vif.BVALID),
+    .BREADY(axi_vif.BREADY),
 
     //Read Address Channel
-    .ARADDR(axi_if_inst.ARADDR),
-    .ARVALID(axi_if_inst.ARVALID),
-    .ARREADY(axi_if_inst.ARREADY),
+    .ARADDR(axi_vif.ARADDR),
+    .ARVALID(axi_vif.ARVALID),
+    .ARREADY(axi_vif.ARREADY),
 
     //Read Data Channel
-    .RDATA(axi_if_inst.RDATA),
-    .RVALID(axi_if_inst.RVALID),
-    .RREADY(axi_if_inst.RREADY),
-    .RRESP(axi_if_inst.RRESP)
+    .RDATA(axi_vif.RDATA),
+    .RVALID(axi_vif.RVALID),
+    .RREADY(axi_vif.RREADY),
+    .RRESP(axi_vif.RRESP)
 );
 
+//-------------------------------------------------------------------
+// UVM Hookup and Simulation control
+//-------------------------------------------------------------------
+initial begin
+    //Pass interfaces into UVM via config_db
+    uvm_config_db#(virtual axi_if)::set(null, "uvm_test_top.env", "vif", axi_vif);
+    uvm_config_db#(virtual reset_if)::set(null, "uvm_test_top.env", "rst_if", rst_if);
+end
 //-------------------------------------------------------------------
 // UVM Test Start hook
 //-------------------------------------------------------------------
