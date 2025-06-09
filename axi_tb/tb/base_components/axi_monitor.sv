@@ -1,3 +1,10 @@
+/* | Feature                                        | Status |
+| ---------------------------------------------- | ------ |
+| `reset_if` via `uvm_config_db`                 | ✅ Yes  |
+| Skip sampling during reset                     | ✅ Yes  |
+| Functional coverage guarded by reset           | ✅ Yes  |
+| Analysis port `write()` only called post-reset | ✅ Yes  | */
+
 // Update: Addition of functional coverage
 //----------------------------------------------------------------
 // AXI Monitor
@@ -9,7 +16,8 @@
 class axi_monitor extends uvm_monitor;
  `uvm_component_utils(axi_monitor)
     //Virtual interface handle
-    virtual axi_if vif;
+    virtual axi_if   vif;
+    virtual reset_if rst_if;
 
     //Analysis port to broadcast observed transactions
     uvm_analysis_port #(axi_transaction) mon_ap;
@@ -53,6 +61,9 @@ class axi_monitor extends uvm_monitor;
         if(!uvm_config_db#(virtual axi_if)::get(this, "", "vif", vif))
         `uvm_fatal("AXI_MONITOR", "Virtual interface not found")
 
+        if(!uvm_config_db#(virtual reset_if)::get(this, "", "rst_if", rst_if))
+        `uvm_fatal("AXI_MONITOR", "Reset interface not found")
+
         cg_axi_transaction = new();
         
     endfunction
@@ -73,17 +84,27 @@ task monitor_write_channel();
 
     forever begin
         //Wait for write address handshake
-        @(posedge vif.ACLK iff (vif.AWVALID && vif.AWREADY));
+        @(posedge vif.ACLK);
+        if(!rst_if.rst_n) continue;  //If we are in reset, skip this cycle
+
+        if (vif.AWVALID && vif.AWREADY) begin
         tr = axi_transaction::type_id::create("tr", this);
         tr.txn_type = axi_transaction::AXI_WRITE;
         tr.addr = vif.AWADDR;
+        end else continue;
 
         //Wait for Write Data handshake
-        @(posedge vif.ACLK iff (vif.WVALID && vif.WREADY));
+        @(posedge vif.ACLK); 
+         if(!rst_if.rst_n) continue;
+
+        if (vif.WVALID && vif.WREADY)
         tr.data = vif.WDATA;
 
         //Wait for response
-        @(posedge vif.ACLK iff (vif.BVALID && vif.BREADY));
+        @(posedge vif.ACLK);
+        if(!rst_if.rst_n) continue;
+
+         if (vif.BVALID && vif.BREADY);
         tr.resp = vif.BRESP;
 
         `uvm_info("AXI_MON_WRITE", $sformatf("Sample write: %s",tr.convert2string()), UVM_MEDIUM)
@@ -104,13 +125,19 @@ task monitor_read_channel();
 
     forever begin
         //Wait for read address handshake
-        @(posedge vif.ACLK iff (vif.ARVALID && vif.ARREADY));
+        @(posedge vif.ACLK);
+        if(!rst_if.rst_n) continue;
+
+         (vif.ARVALID && vif.ARREADY) begin
         tr = axi_transaction::type_id::create("tr", this);
         tr.txn_type = axi_transaction::AXI_READ;
-        tr.addr = vif.ArADDR;
+        tr.addr = vif.ARADDR;
+         end else continue;
 
         //Wait for Read Data handshake
-        @(posedge vif.ACLK iff (vif.RVALID && vif.RREADY));
+        @(posedge vif.ACLK)
+        if(!rst_if.rst_n) continue;
+         if (vif.RVALID && vif.RREADY) begin
         tr.data = vif.RDATA;
         tr.resp = vif.RRESP;
 
@@ -122,8 +149,22 @@ task monitor_read_channel();
 
         tr_cov = tr;         //assign to covergroup-sampled variable
         cg_axi_transaction.sample();
+        end
         
     end
 endtask
 
 endclass
+
+/* In production-grade environments (Qualcomm, Intel, Apple, ARM, etc.), the preferred approach is:
+
+✔️ Modify the axi_monitor to ignore or filter out transactions during reset
+✅ Why This Is Preferred in Industry
+Reason	Why It Matters
+✅ Prevents false scoreboard mismatches	If the monitor reports a transaction during reset, but DUT doesn’t act on it,
+ scoreboard sees a mismatch.
+✅ Keeps coverage accurate	You don’t want coverage bins falsely triggered during reset conditions.
+✅ Makes the testbench reset-aware	If your driver pauses during reset, your monitor must align — or else you get 
+inconsistent behavior.
+✅ Supports clean reset recovery tests	Lets you verify that post-reset behavior is correct, without polluting logs 
+or coverage from junk transactions. */
