@@ -1,4 +1,4 @@
-# AXI_Verification
+# AXI_Lite_Slave Verification
 Step by Step Plan 
 1. Multiple outstanding Transactions
 2. Separate Read/Write channels
